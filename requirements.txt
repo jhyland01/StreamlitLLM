@@ -1,2 +1,4 @@
 streamlit
-ollama
+llama-index
+llama-index-llms-ollama
+llama-index-embeddings-huggingface
