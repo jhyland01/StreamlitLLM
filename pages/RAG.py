@@ -1,6 +1,7 @@
 import streamlit as st
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.ollama import Ollama
 import logging
 import time
 import os
@@ -24,6 +25,8 @@ def main():
     logging.info("App started")
     model = st.sidebar.selectbox("Choose a model", ["llama3", "phi3", "mistral"], index=0)
     logging.info(f"Model selected: {model}")
+    llm = Ollama(model=model, request_timeout=300.0)
+    Settings.llm = llm
 
     uploaded_file = st.file_uploader("Drag and drop a file here", type=["txt", "pdf", "docx"])
     if uploaded_file is not None:
@@ -34,7 +37,7 @@ def main():
 
     if documents := load_documents():
         index = VectorStoreIndex.from_documents(documents)
-        query_engine = index.as_query_engine(embedding_model=Settings.embed_model)
+        query_engine = index.as_query_engine(llm=llm)
     else:
         st.error("No documents found in the directory.")
         logging.error("No documents found in the directory.")
@@ -54,7 +57,7 @@ def main():
 
                 with st.spinner("Writing..."):
                     try:
-                        do_rag_chat(query_engine, prompt, model, start_time)
+                        do_rag_chat(llm, query_engine, prompt, model, start_time)
                     except Exception as e:
                         st.session_state.messages.append({"role": "assistant", "content": str(e)})
                         st.error("An error occurred while generating the response.")
