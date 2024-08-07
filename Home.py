@@ -14,6 +14,7 @@ def main():
     # use cases side by side
     col1, col2, col3 = st.columns(3)
     with col1:
+        st.write("\n")
         st.write(r"$\texttt{Pair\ on\ proprietary\ code\ in\ safety}$")
         st.image("icons/code_blur.png", use_column_width=True)
     with col2:
@@ -21,6 +22,7 @@ def main():
         st.image("icons/sensitive_info.jpg", use_column_width=True)
     with col3:
         st.subheader("Use the latest LLMs for free")
+        st.write("\n")
         st.image("icons/gifrecording.gif", use_column_width=True)
 
 if __name__ == "__main__":
