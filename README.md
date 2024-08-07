@@ -9,3 +9,7 @@ run the app:
 ```
 streamlit run app.py
 ```
+
+## Contents
+Using a local LLM of your choice you can perform the usual chat, obtain help with code etc. 
+You can also use the RAG page to generate responses based on the text.
