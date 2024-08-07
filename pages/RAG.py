@@ -90,7 +90,7 @@ async def run_workflow(query):
     stop_event = await workflow.synthesize(ctx, retriever_event)
     return stop_event.result
 
-st.title("RAG Workflow with Streamlit")
+st.title("Query documents with a local RAG model")
 
 if uploaded_files := st.file_uploader("Upload your files", accept_multiple_files=True):
     for uploaded_file in uploaded_files:
