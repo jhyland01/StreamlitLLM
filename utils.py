@@ -1,5 +1,4 @@
 import streamlit as st
-from llama_index.llms.ollama import Ollama
 from llama_index.core.llms import ChatMessage
 import logging
 import time
@@ -30,6 +29,7 @@ def do_rag_chat(llm, query_engine, prompt, model, start_time):
     messages = [ChatMessage(role=msg["role"], content=msg["content"]) for msg in st.session_state.messages]
     retrieved_docs = query_engine.query(prompt)
     retrieved_docs_text = "\n".join(doc.text for doc in retrieved_docs)
+    print(retrieved_docs_text)
     response_message = stream_chat(llm, model, messages, retrieved_docs_text)
     append_response_and_log(response_message, start_time)
 

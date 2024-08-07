@@ -37,7 +37,7 @@ def main():
 
     if documents := load_documents():
         index = VectorStoreIndex.from_documents(documents)
-        query_engine = index.as_query_engine(llm=llm)
+        query_engine = index.as_query_engine(similarity_top_k=3, llm=llm)
     else:
         st.error("No documents found in the directory.")
         logging.error("No documents found in the directory.")
