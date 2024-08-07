@@ -8,7 +8,7 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 
 def main():
-    st.title("Chat with LLMs Models")
+    st.title("Chat with local LLMs")
     logging.info("App started")
     model = st.sidebar.selectbox("Choose a model", ["llama3", "phi3", "mistral"], index=0)
     llm = Ollama(model=model, request_timeout=300.0)
