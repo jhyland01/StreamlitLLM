@@ -104,7 +104,9 @@ if uploaded_files := st.file_uploader("Upload your files", accept_multiple_files
     for uploaded_file in uploaded_files:
         with open(os.path.join(upload_dir, uploaded_file.name), "wb") as f:
             f.write(uploaded_file.getbuffer())
-    st.success("Files uploaded successfully.")
+    st.success(
+        f"Files uploaded successfully. Files in folder: {os.listdir(upload_dir)}"
+    )
 
 query = st.text_input("Enter your query:")
 
