@@ -1,9 +1,10 @@
 import os
 import asyncio
+import chromadb
+from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 import streamlit as st
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from llama_index.core.response_synthesizers import CompactAndRefine
-from llama_index.core.postprocessor.llm_rerank import LLMRerank
 from llama_index.core.workflow import (
     Context,
     Workflow,
@@ -15,6 +16,8 @@ from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.workflow import Event
 from llama_index.core.schema import NodeWithScore
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import StorageContext
 
 model_name = st.sidebar.selectbox("Choose a model", ["llama3", "phi3", "mistral"], index=0)
 
@@ -40,6 +43,11 @@ class RAGWorkflow(Workflow):
         if not dirname:
             return None
 
+        client = chromadb.PersistentClient(path="ollama")
+        ef = OllamaEmbeddingFunction(
+            model_name="nomic-embed-text",
+            url="http://localhost:11434/api/embeddings",
+        )
         documents = SimpleDirectoryReader(dirname).load_data()
         ctx.data["index"] = VectorStoreIndex.from_documents(
             documents=documents,
@@ -49,7 +57,7 @@ class RAGWorkflow(Workflow):
 
     @step(pass_context=True)
     async def retrieve(self, ctx: Context, ev: StartEvent) -> RetrieverEvent | None:
-        "Entry point for RAG, triggered by a StartEvent with `query`."
+        """Entry point for RAG, triggered by a StartEvent with `query`."""
         query = ev.get("query")
         if not query:
             return None

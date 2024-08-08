@@ -13,3 +13,8 @@ streamlit run app.py
 ## Contents
 Using a local LLM of your choice you can perform the usual chat, obtain help with code etc. 
 You can also use the RAG page to generate responses based on the text.
+
+## Details
+* LLM it made available with Ollama
+* LLM indegration uses llama-index
+* Vector store for document embeddings with chromadb
