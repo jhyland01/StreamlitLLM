@@ -16,10 +16,11 @@ def main():
     with col1:
         st.write("\n")
         st.write(r"$\texttt{Pair\ on\ proprietary\ code\ in\ safety}$")
+        st.write("\n")
         st.image("icons/code_blur.png", use_column_width=True)
     with col2:
-        st.latex(r"\text{Query sensitive documents}")
-        st.image("icons/sensitive_info.jpg", use_column_width=True)
+        st.latex(r"\text{\large Query sensitive documents}")
+        st.image("icons/sensitive.png", use_column_width=True)
     with col3:
         st.subheader("Use the latest LLMs for free")
         st.write("\n")
