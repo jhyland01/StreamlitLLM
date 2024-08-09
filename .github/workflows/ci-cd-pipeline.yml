@@ -28,12 +28,11 @@ jobs:
         
     - name: Install Ollama
       run: |
-        pip install ollama
+        curl -fsSL https://ollama.com/install.sh | sh
 
     - name: Download Model
       run: |
-        # Command to download the model, this will depend on Ollama's CLI or API
-        ollama download llama3
+        ollama pull llama3
 
     - name: Run tests
       run: |
