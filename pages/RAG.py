@@ -19,27 +19,35 @@ from llama_index.core.schema import NodeWithScore
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import StorageContext
 
-model_name = st.sidebar.selectbox("Choose a model", ["llama3", "phi3", "mistral"], index=0)
+model_name = st.sidebar.selectbox(
+    "Choose a model", ["llama3", "phi3", "mistral"], index=0
+)
+
 
 class RetrieverEvent(Event):
     """Result of running retrieval"""
+
     nodes: list[NodeWithScore]
+
 
 class RerankEvent(Event):
     """Result of running reranking on retrieved nodes"""
+
     nodes: list[NodeWithScore]
+
 
 upload_dir = "./data"
 os.makedirs(upload_dir, exist_ok=True)
 
+
 class RAGWorkflow(Workflow):
-    def __init__(self, model_name): 
+    def __init__(self, model_name):
         self.model_name = model_name
 
     @step(pass_context=True)
     async def ingest(self, ctx: Context, ev: StartEvent) -> StopEvent | None:
         """Entry point to ingest a document, triggered by a StartEvent with `dirname`."""
-        dirname = './data'
+        dirname = "./data"
         if not dirname:
             return None
 
@@ -88,8 +96,10 @@ class RAGWorkflow(Workflow):
         response = await summarizer.asynthesize(query, nodes=ev.nodes)
         result_str = await response._async_str()  # Ensure this is awaited
         return StopEvent(result=result_str)
-    
+
+
 workflow = RAGWorkflow(model_name=model_name)
+
 
 async def run_workflow(query):
     ctx = Context()
@@ -97,6 +107,7 @@ async def run_workflow(query):
     retriever_event = await workflow.retrieve(ctx, StartEvent(query=query))
     stop_event = await workflow.synthesize(ctx, retriever_event)
     return stop_event.result
+
 
 st.title("Query documents with a local RAG model")
 
