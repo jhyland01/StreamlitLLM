@@ -10,58 +10,10 @@ import logging
 import time
 
 
-def stream_chat(llm, model, messages, doc_text=None):
-    try:
-        if doc_text:
-            messages.append(ChatMessage(role="system", content=doc_text))
-        response = ""
-        response_placeholder = st.empty()
-        for r in llm.stream_chat(messages):
-            response += r.delta
-            response_placeholder.write(response)
-        logging.info(f"Model: {model}, Messages: {messages}, Response: {response}")
-        return response
-    except Exception as e:
-        logging.error(f"Error during streaming: {str(e)}")
-        raise e
-
-
-def append_response_and_log(response_message, start_time):
-    duration = time.time() - start_time
-    response_message_with_duration = (
-        f"{response_message}\n\nDuration: {duration:.2f} seconds"
-    )
-    st.session_state.messages.append(
-        {"role": "assistant", "content": response_message_with_duration}
-    )
-    st.write(f"Duration: {duration:.2f} seconds")
-    logging.info(f"Response: {response_message}, Duration: {duration:.2f} s")
-
-
-def do_rag_chat(llm, query_engine, prompt, model, start_time):
-    messages = [
-        ChatMessage(role=msg["role"], content=msg["content"])
-        for msg in st.session_state.messages
-    ]
-    retrieved_docs = query_engine.query(prompt)
-    retrieved_docs_text = "\n".join(doc.text for doc in retrieved_docs)
-    print(retrieved_docs_text)
-    response_message = stream_chat(llm, model, messages, retrieved_docs_text)
-    append_response_and_log(response_message, start_time)
-
-
-def do_chat(llm, model, start_time):
-    messages = [
-        ChatMessage(role=msg["role"], content=msg["content"])
-        for msg in st.session_state.messages
-    ]
-    response_message = stream_chat(llm, model, messages)
-    append_response_and_log(response_message, start_time)
-
-
 def get_doc_tools(
     file_path: str,
     name: str,
+    llm,
 ) -> str:
     """Get vector query and summary query tools from a document."""
 
@@ -69,7 +21,9 @@ def get_doc_tools(
     documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
     splitter = SentenceSplitter(chunk_size=1024)
     nodes = splitter.get_nodes_from_documents(documents)
-    embedding_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embedding_model = HuggingFaceEmbedding(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
     vector_index = VectorStoreIndex(nodes, embed_model=embedding_model)
 
     def vector_query(query: str, page_numbers: Optional[List[str]] = None) -> str:
@@ -102,10 +56,15 @@ def get_doc_tools(
         name=f"vector_tool_{name}", fn=vector_query
     )
 
-    summary_index = SummaryIndex(nodes)
+    summary_index = SummaryIndex(
+        nodes,
+        embed_model=embedding_model,
+        llm=llm,
+    )
     summary_query_engine = summary_index.as_query_engine(
         response_mode="tree_summarize",
         use_async=True,
+        llm=llm,
     )
     summary_tool = QueryEngineTool.from_defaults(
         name=f"summary_tool_{name}",
